@@ -1,0 +1,15 @@
+﻿生成启动时间为 2019/11/27 19:22:32。
+     1>项目“F:\程序\test_11.27\test_11.27\test_11.27.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         E:\vss\vis\VC\bin\CL.exe /c /I"E:\vss\内存泄漏检查工具\新建文件夹\Visual Leak Detector\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt "源.cpp"
+         源.cpp
+     1>f:\程序\test_11.27\test_11.27\源.cpp(60): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\test_11.27\test_11.27\源.cpp(62): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\test_11.27\test_11.27\源.cpp(64): error C4996: 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::copy': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
+                 e:\vss\vis\vc\include\xstring(1798) : 参见“std::basic_string<char,std::char_traits<char>,std::allocator<char>>::copy”的声明
+     1>f:\程序\test_11.27\test_11.27\源.cpp(66): error C3867: “std::basic_string<char,std::char_traits<char>,std::allocator<char>>::c_str”:  函数调用缺少参数列表；请使用“&std::basic_string<char,std::char_traits<char>,std::allocator<char>>::c_str”创建指向成员的指针
+     1>已完成生成项目“F:\程序\test_11.27\test_11.27\test_11.27.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:00.40
