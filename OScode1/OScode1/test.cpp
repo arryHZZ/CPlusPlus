@@ -3,8 +3,10 @@
 #include<string>
 #include<vector>
 #include<iomanip>
+#include<queue>
 
 using namespace std;
+
 //时间类
 class Time
 {
@@ -41,6 +43,20 @@ public:
 		}
 		return (minute + hour * 60)*flag;
 	}
+
+	Time& operator+(const int n)
+	{
+		int min = n + this->_minute;
+		this->_hour += min / 60;
+		this->_minute = min % 60;
+		return *this;
+	}
+
+	Time& operator+=(const int n)
+	{
+		*this = *this + n;
+		return *this;
+	}
 	////计算和值，返回分钟
 	//int operator+(const Time& time)
 	//{
@@ -52,8 +68,8 @@ public:
 	//赋值运算符重载
 	Time& operator=(Time& time)
 	{
-		Time tmp(time);
-		swap(time, *this);
+		this->_hour = time._hour;
+		this->_minute = time._minute;
 		return *this;
 	}
 
@@ -139,6 +155,23 @@ public:
 	friend istream& operator>>(istream& _cin, Process& process);
 	//输出重载
 	friend ostream& operator<<(ostream& _cout, const Process process);
+	//引用重载
+	Process& operator&()
+	{
+		return *this;
+	}
+	//赋值重载
+	Process& operator=(Process& a)
+	{
+		this->_BeginTime = a._BeginTime;
+		this->_EnterTime = a._EnterTime;
+		this->_FinishTime = a._FinishTime;
+		this->_name = a._name;
+		this->_PowerTime = a._PowerTime;
+		this->_rTime = a._rTime;
+		this->_ServiceTime = a._ServiceTime;
+		return *this;
+	}
 	static Time _LineTime;  //时间线
 	static size_t _TimePiece; //时间片
 	int _name; //进程编号
@@ -148,6 +181,8 @@ public:
 	Time _FinishTime;  //完成时间
 	size_t _rTime;  //周转时间
 	double _PowerTime;  //带权周转时间
+	double _First;  //优先级
+	int _RemainSeviceTime;  //剩余时间
 
 };
 
@@ -162,6 +197,7 @@ istream& operator>>(istream& _cin, Process& process)
 	_cin >> process._EnterTime;
 	cout << "服务时间:";
 	_cin >> process._ServiceTime;
+	process._RemainSeviceTime = process._ServiceTime;
 	return _cin;
 }
 
@@ -169,41 +205,14 @@ istream& operator>>(istream& _cin, Process& process)
 ostream& operator<<(ostream& _cout, const Process process)
 {
 	cout << setiosflags(ios::right);
-	_cout <<"   "<< process._name << "       " << process._EnterTime << "     " << process._BeginTime << "       " <<
-		process._ServiceTime << "       " << process._FinishTime << "    " <<setw(8)<< process._rTime << "  "<<setw(12) << process._PowerTime;
+	_cout << "   " << process._name << "       " << process._EnterTime << "     " << process._BeginTime << "       " <<
+		process._ServiceTime << "       " << process._FinishTime;
+	cout << setiosflags(ios::right);
+	_cout<< setw(8) << process._rTime << "" << setw(12) << process._PowerTime;
 	return _cout ;
 }
 
-//void testTime()
-//{
-//	Time t1(2,10);
-//	Time t2(1,50);
-//	//cout << (t1 > t2)<<endl;
-//	//cout << (t1 >= t2) << endl;
-//	//cout << (t1 < t2) << endl;
-//	//cout << (t1 <= t2) << endl;
-//	//cout << (t1 == t2) << endl;
-//	//cout << (t1 != t2) << endl;
-//	cin >> t1;
-//	cout << (t1 - t2)<<endl;
-//	cout << t1;
-//}
-
-
-
-//void testProcess()
-//{
-//	Process p;
-//	cout << "时间片";
-//	cin >> Process::_TimePiece;
-//	cout << "线";
-//	cin >> Process::_LineTime;
-//	cin >> p;
-//	cin >> p._rTime;
-//	cin >> p._PowerTime;
-//	cout << p;
-//}
-
+//输入
 void InPut(vector<Process>& process)
 {
 	cout << "添加几条进程:";
@@ -216,6 +225,7 @@ void InPut(vector<Process>& process)
 	}
 }
 
+//输出
 void OutPut(const vector<Process>& process)
 {
 	cout << "进程编号  " << "进入时间  " << "开始时间  " 
@@ -226,21 +236,319 @@ void OutPut(const vector<Process>& process)
 	}
 }
 
-int compare(const void * a, const void * b)
+//交换
+void Swap(Process& a, Process& b)
 {
-	Process* p = (Process*)a;
-	Process* q = (Process*)b;
-	if (p->_EnterTime < q->_EnterTime)
-		return -1;
-	if (p->_EnterTime > q->_EnterTime)
-		return 1;
-	if (p->_EnterTime == q->_EnterTime)
-		return 0;
+	Process tmp = a;
+	a = b;
+	b = tmp;
 }
 
-void FCFS(vector<Process>& process)
+//按照进入时间进行排序
+void EnterTimeSort(vector<Process>& process)
 {
-	qsort(&process, process.size(), sizeof(Process), compare);
+	if (process.size() == 0)
+		return;
+	for (int i = 0; i < process.size() - 1; i++)
+	{
+		for (int j = 0; j < process.size() - i - 1; j++)
+		{
+			if (process[j]._EnterTime > process[j + 1]._EnterTime)
+				Swap(process[j], process[j + 1]);
+		}
+	}
+}
+
+//依次执行进程
+void RunProcess(vector<Process>& process)
+{
+	if (process.size() == 0)
+		return;
+	for (int i = 0; i < process.size(); i++)
+	{
+		if (process[i]._LineTime <= process[i]._EnterTime)
+		{
+			process[i]._BeginTime = process[i]._EnterTime;
+			process[i]._LineTime = process[i]._EnterTime;
+			process[i]._LineTime += process[i]._ServiceTime;
+			process[i]._FinishTime = process[i]._LineTime;
+		}
+		else
+		{
+			process[i]._BeginTime = process[i]._LineTime;
+			process[i]._LineTime += process[i]._ServiceTime;
+			process[i]._FinishTime = process[i]._LineTime;
+		}
+		process[i]._rTime = process[i]._FinishTime - process[i]._EnterTime;
+		process[i]._PowerTime = process[i]._rTime / process[i]._ServiceTime;
+	}
+}
+
+//单次执行进程
+void ProcessOnce(Process& process)
+{
+	if (process._LineTime <= process._EnterTime)
+	{
+		process._BeginTime = process._EnterTime;
+		process._LineTime = process._EnterTime;
+		process._LineTime += process._ServiceTime;
+		process._FinishTime = process._LineTime;
+	}
+	else
+	{
+		process._BeginTime = process._LineTime;
+		process._LineTime += process._ServiceTime;
+		process._FinishTime = process._LineTime;
+	}
+	process._rTime = process._FinishTime - process._EnterTime;
+	process._PowerTime = process._rTime / process._ServiceTime;
+}
+
+//先来先服务
+void FCFS(vector<Process> process)
+{
+	if (process.size() == 0)
+		return;
+	EnterTimeSort(process);  //按照进入时间排序
+	process[0]._LineTime = process[0]._EnterTime;   //将最早进入内存的是进程时间设置为时间线的起点
+	RunProcess(process);
+	OutPut(process);
+}
+
+//按照运行时间排序
+void ServiceTimeSort(vector<Process>& process)
+{
+	if (process.size() == 0)
+		return;
+	for (int i = 0; i < process.size() - 1; i++)
+	{
+		for (int j = 0; j < process.size() - i - 1; j++)
+		{
+			if (process[j]._ServiceTime > process[j + 1]._ServiceTime)
+				Swap(process[j], process[j + 1]);
+		}
+	}
+}
+
+//短进程优先
+void SJF(vector<Process> process)
+{
+	if (process.size() == 0)
+		return;
+	vector<Process> q;
+	EnterTimeSort(process);
+	process[0]._LineTime = process[0]._EnterTime;
+	while (!process.empty())
+	{
+		vector<Process> tmp;
+		auto begin = process.begin();
+		while (begin != process.end())
+		{
+			if (begin->_EnterTime <= begin->_LineTime)
+			{
+				tmp.push_back(*begin);
+				begin = process.erase(process.begin());
+			}
+			else
+				begin++;
+		}
+		ServiceTimeSort(tmp);
+		RunProcess(tmp);
+		for (auto& e : tmp)
+		{
+			q.push_back(e);
+		}
+		if (tmp.size() == 0 && !process.empty())
+		{
+			process[0]._LineTime = process[0]._EnterTime;
+		}
+	}
+
+	OutPut(q);
+
+}
+
+//计算响应比
+void CalculateFirst(vector<Process>& process)
+{
+	if (process.size() == 0)
+		return;
+	for (auto&e : process)
+	{
+		e._First = (e._LineTime - e._EnterTime) / e._ServiceTime + 1;
+	}
+}
+
+void FirstSort(vector<Process>& process)
+{
+	if (process.size() == 0)
+		return;
+	for (int i = 0; i < process.size() - 1; i++)
+	{
+		for (int j = 0; j < process.size() - i - 1; j++)
+		{
+			if (process[j]._First < process[j + 1]._First)
+				Swap(process[j], process[j + 1]);
+		}
+	}
+}
+
+//高响应比优先
+void HRRN(vector<Process> process)
+{
+	if (process.size() == 0)
+		return;
+	EnterTimeSort(process);
+	vector<Process> q;
+	vector<Process> tmp;
+	process[0]._LineTime = process[0]._EnterTime;
+	while (!process.empty())
+	{
+
+		auto begin = process.begin();
+		while (begin != process.end())
+		{
+			if (begin->_EnterTime <= begin->_LineTime)
+			{
+				tmp.push_back(*begin);
+				begin = process.erase(process.begin());
+			}
+			else
+				begin++;
+		}
+		CalculateFirst(tmp);
+		FirstSort(tmp);
+		if (tmp.size() != 0)
+		{
+			auto begin = tmp.begin();
+			ProcessOnce(*begin);
+			q.push_back(*begin);
+			tmp.erase(tmp.begin());
+		}
+		//当调度池中没有进程时，且时间线的时间不足以使下一个进程进入到调度池中，修改时间线
+		if (!process.empty() && tmp.size() == 0 && process[0]._LineTime < process[0]._EnterTime)
+		{
+			process[0]._LineTime = process[0]._EnterTime;
+		}
+	}
+	OutPut(q);
+}
+
+void ProcessOnceForRR(Process& process, int n)
+{
+	Time a;
+	if (process._BeginTime == a);
+	{
+		process._BeginTime = process._EnterTime;
+	}
+	//如果时间线小于等于进程进入时间
+	if (process._LineTime <= process._EnterTime)
+	{
+		//进程开始时间等于进程进入时间,时间线修改为进程进入时间开始
+		process._LineTime = process._EnterTime;
+		//如果服务时间大于等于一个时间片的时间
+		if (process._RemainSeviceTime >= n)
+		{
+			//时间线增加一个时间片服务时间减少一个时间片
+			process._LineTime += n;
+			process._RemainSeviceTime -= n;
+		}
+		//如果不大于
+		else
+		{
+			//时间线增加剩余服务时间。服务时间置为0
+			process._LineTime += process._RemainSeviceTime;
+			process._RemainSeviceTime = 0;
+		}
+		//如果服务时间为0，则证明该进程已经执行完毕，此时时间线的时间为该进程结束时间
+		if (process._RemainSeviceTime == 0)
+			process._FinishTime = process._LineTime;
+	}
+	//时间线大于进程进入时间
+	else
+	{
+		//进程开始时间为时间线当前时间
+		process._BeginTime = process._LineTime;
+		//时间线增加一个时间片，同上
+		if (process._RemainSeviceTime >= n)
+		{
+			//时间线增加一个时间片,服务时间减少一个时间片
+			process._LineTime += n;
+			process._RemainSeviceTime -= n;
+		}
+		//如果不大于
+		else
+		{
+			//时间线增加剩余服务时间。服务时间置为0
+			process._LineTime += process._RemainSeviceTime;
+			process._RemainSeviceTime = 0;
+		}
+		//如果服务时间为0，则证明该进程已经执行完毕，此时时间线的时间为该进程结束时间
+		if (process._RemainSeviceTime == 0)
+			process._FinishTime = process._LineTime;
+		cout << process._name;
+	}
+
+}
+
+//时间片轮转
+void RR(vector<Process> process)
+{
+	if (process.size() == 0)
+		return;
+	vector<Process> Print;
+	queue<Process> Queue;  //缓冲队
+	EnterTimeSort(process);
+	int q = 0;  //时间片长度，以分钟为单位
+	cout << "请输入时间片的长度:";
+	cin >> q;
+	process[0]._LineTime = process[0]._EnterTime;
+	process[0]._BeginTime = process[0]._LineTime;
+	Queue.push(process[0]);
+	process.erase(process.begin());
+	while (Queue.size() != 0)
+	{
+		//将队头的进程执行一个时间片
+		ProcessOnceForRR(Queue.front(),q);
+		//查看进程信息中有哪些进程到达,如果到达则存入队中等待执行
+		if (process.size() != 0)
+		{
+			auto begin = process.begin();
+			while (begin != process.end())
+			{
+				if (begin->_EnterTime <= begin->_LineTime)
+				{
+					Queue.push(*begin);
+					begin = process.erase(process.begin());
+				}
+				else
+				{
+					begin++;
+				}
+			}
+		}
+		//判断对头元素是否已经执行结束
+		Process tmp = Queue.front();
+		Queue.pop();  //出队
+		if (tmp._RemainSeviceTime == 0)
+		{
+			//等于0计算周转时间，带权周转时间
+			tmp._rTime = tmp._FinishTime - tmp._EnterTime;
+			tmp._PowerTime = tmp._rTime / tmp._ServiceTime;
+			Print.push_back(tmp);  //保存到信息表中
+		}
+		else   // 不等于0
+		{
+			Queue.push(tmp);  //重新入队，等待下次分配时间片
+		}
+		//当调度池中没有进程时，且时间线的时间不足以使下一个进程进入到调度池中，修改时间线
+		if (process.size() != 0 && Queue.size() != 0 && process[0]._LineTime < process[0]._EnterTime)
+		{
+			process[0]._LineTime = process[0]._EnterTime;
+		}
+	}
+	cout << endl;
+	OutPut(Print);
 }
 
 void menu()
@@ -263,11 +571,11 @@ void menu()
 			break;
 		case 2:FCFS(process);
 			break;
-		case 3:
+		case 3:SJF(process);
 			break;
-		case 4:
+		case 4:HRRN(process);
 			break;
-		case 5:
+		case 5:RR(process);
 			break;
 		case 6: OutPut(process);
 			break;
@@ -277,11 +585,13 @@ void menu()
 	} while (input);
 }
 
-int main()
+void testProcess()
 {
 	menu();
-	//Process p1, p2;
-	//cin >> p1 >> p2;
-	//compare(&p1, &p2);
+}
+
+int main()
+{
+	testProcess();
 	return 0;
 }
