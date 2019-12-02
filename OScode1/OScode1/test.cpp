@@ -132,6 +132,7 @@ ostream& operator<<(ostream& _cout, const Time time)
 	return _cout;
 }
 
+//进程类
 class Process
 {
 public:
@@ -170,6 +171,7 @@ public:
 		this->_PowerTime = a._PowerTime;
 		this->_rTime = a._rTime;
 		this->_ServiceTime = a._ServiceTime;
+		this->_RemainSeviceTime = a._RemainSeviceTime;
 		return *this;
 	}
 	static Time _LineTime;  //时间线
@@ -200,7 +202,6 @@ istream& operator>>(istream& _cin, Process& process)
 	process._RemainSeviceTime = process._ServiceTime;
 	return _cin;
 }
-
 
 ostream& operator<<(ostream& _cout, const Process process)
 {
@@ -284,24 +285,29 @@ void RunProcess(vector<Process>& process)
 	}
 }
 
-//单次执行进程
-void ProcessOnce(Process& process)
+//单步执行进程
+void TmpOfPrccess(Process& process, int n)
 {
-	if (process._LineTime <= process._EnterTime)
+	if (process._ServiceTime == process._RemainSeviceTime)
 	{
-		process._BeginTime = process._EnterTime;
-		process._LineTime = process._EnterTime;
-		process._LineTime += process._ServiceTime;
-		process._FinishTime = process._LineTime;
+		process._BeginTime = process._LineTime;
+	}
+	if (process._RemainSeviceTime >= n)
+	{
+		process._RemainSeviceTime -= n;
+		process._LineTime += n;
 	}
 	else
 	{
-		process._BeginTime = process._LineTime;
-		process._LineTime += process._ServiceTime;
-		process._FinishTime = process._LineTime;
+		process._LineTime += process._RemainSeviceTime;
+		process._RemainSeviceTime = 0;
 	}
-	process._rTime = process._FinishTime - process._EnterTime;
-	process._PowerTime = process._rTime / process._ServiceTime;
+	if (process._RemainSeviceTime == 0)
+	{
+		process._FinishTime = process._LineTime;
+		process._rTime = process._FinishTime - process._EnterTime;
+		process._PowerTime = (double)process._rTime / process._ServiceTime;
+	}
 }
 
 //先来先服务
@@ -311,7 +317,7 @@ void FCFS(vector<Process> process)
 		return;
 	EnterTimeSort(process);  //按照进入时间排序
 	process[0]._LineTime = process[0]._EnterTime;   //将最早进入内存的是进程时间设置为时间线的起点
-	RunProcess(process);
+	RunProcess(process);  //依次执行所有进程
 	OutPut(process);
 }
 
@@ -335,35 +341,38 @@ void SJF(vector<Process> process)
 {
 	if (process.size() == 0)
 		return;
-	vector<Process> q;
-	EnterTimeSort(process);
-	process[0]._LineTime = process[0]._EnterTime;
-	while (!process.empty())
+	vector<Process> q;  //创建进程结束信息记录表
+	EnterTimeSort(process);   //根据进入时间排序
+	process[0]._LineTime = process[0]._EnterTime;   //设定时间线起始时间
+	vector<Process> tmp;   //创建缓冲池
+	while (!process.empty() || !tmp.empty())   //当缓冲池和进程信息表时间同时为空循环结束
 	{
-		vector<Process> tmp;
-		auto begin = process.begin();
-		while (begin != process.end())
+		auto begin = process.begin();   
+		while (begin != process.end())   //判断当前时间线，有哪些进程已经到达
 		{
-			if (begin->_EnterTime <= begin->_LineTime)
+			if (begin->_EnterTime <= begin->_LineTime)     //如果进程进入时间小于时间线时间，证明进程已经到达
 			{
-				tmp.push_back(*begin);
-				begin = process.erase(process.begin());
+				tmp.push_back(*begin);                //存入缓冲队中
+				begin = process.erase(process.begin());  //从进程信息表中删除入队信息
 			}
 			else
 				begin++;
 		}
-		ServiceTimeSort(tmp);
-		RunProcess(tmp);
-		for (auto& e : tmp)
-		{
-			q.push_back(e);
+		if (tmp.size() != 0)
+		{ 
+			ServiceTimeSort(tmp);    //将缓冲池中的进程信息根据进程服务时间排序
+			auto Tbegin = tmp.begin();
+			TmpOfPrccess(*Tbegin, Tbegin->_RemainSeviceTime);   //将服务时间最短的进行单步执行
+			q.push_back(*Tbegin);   //将该进程信息存入结束信息记录表
+			tmp.erase(tmp.begin());  //从缓冲池中删除该进程信息
 		}
-		if (tmp.size() == 0 && !process.empty())
+		//当缓冲池中没有进程时，但进程信息表不为空，切时间线时间不满足下一个进程到达，修改时间线时间
+		if (tmp.size() == 0 && !process.empty() && process[0]._EnterTime > process[0]._LineTime)
 		{
 			process[0]._LineTime = process[0]._EnterTime;
 		}
 	}
-
+	//打印结束表
 	OutPut(q);
 
 }
@@ -375,10 +384,11 @@ void CalculateFirst(vector<Process>& process)
 		return;
 	for (auto&e : process)
 	{
-		e._First = (e._LineTime - e._EnterTime) / e._ServiceTime + 1;
+		e._First = (double)(e._LineTime - e._EnterTime) / e._ServiceTime + 1;
 	}
 }
 
+//根据响应比排序
 void FirstSort(vector<Process>& process)
 {
 	if (process.size() == 0)
@@ -399,29 +409,31 @@ void HRRN(vector<Process> process)
 	if (process.size() == 0)
 		return;
 	EnterTimeSort(process);
-	vector<Process> q;
-	vector<Process> tmp;
-	process[0]._LineTime = process[0]._EnterTime;
-	while (!process.empty())
+	vector<Process> q;   //结束信息表
+	vector<Process> tmp;  //缓冲池
+	process[0]._LineTime = process[0]._EnterTime;  //设置时间线起始时间
+	while (!process.empty() || !tmp.empty())   //都不为空
 	{
-
 		auto begin = process.begin();
-		while (begin != process.end())
+		while (begin != process.end())  //判断当前时间下有些进程到达
 		{
 			if (begin->_EnterTime <= begin->_LineTime)
-			{
-				tmp.push_back(*begin);
+			{ 
+				tmp.push_back(*begin);   //进程到达放入缓冲池中
 				begin = process.erase(process.begin());
 			}
 			else
 				begin++;
 		}
+		//计算响应比
 		CalculateFirst(tmp);
+		//根据响应比排序
 		FirstSort(tmp);
 		if (tmp.size() != 0)
 		{
 			auto begin = tmp.begin();
-			ProcessOnce(*begin);
+			//单步执行进程
+			TmpOfPrccess(*begin, begin->_ServiceTime);
 			q.push_back(*begin);
 			tmp.erase(tmp.begin());
 		}
@@ -432,63 +444,6 @@ void HRRN(vector<Process> process)
 		}
 	}
 	OutPut(q);
-}
-
-void ProcessOnceForRR(Process& process, int n)
-{
-	Time a;
-	if (process._BeginTime == a);
-	{
-		process._BeginTime = process._EnterTime;
-	}
-	//如果时间线小于等于进程进入时间
-	if (process._LineTime <= process._EnterTime)
-	{
-		//进程开始时间等于进程进入时间,时间线修改为进程进入时间开始
-		process._LineTime = process._EnterTime;
-		//如果服务时间大于等于一个时间片的时间
-		if (process._RemainSeviceTime >= n)
-		{
-			//时间线增加一个时间片服务时间减少一个时间片
-			process._LineTime += n;
-			process._RemainSeviceTime -= n;
-		}
-		//如果不大于
-		else
-		{
-			//时间线增加剩余服务时间。服务时间置为0
-			process._LineTime += process._RemainSeviceTime;
-			process._RemainSeviceTime = 0;
-		}
-		//如果服务时间为0，则证明该进程已经执行完毕，此时时间线的时间为该进程结束时间
-		if (process._RemainSeviceTime == 0)
-			process._FinishTime = process._LineTime;
-	}
-	//时间线大于进程进入时间
-	else
-	{
-		//进程开始时间为时间线当前时间
-		process._BeginTime = process._LineTime;
-		//时间线增加一个时间片，同上
-		if (process._RemainSeviceTime >= n)
-		{
-			//时间线增加一个时间片,服务时间减少一个时间片
-			process._LineTime += n;
-			process._RemainSeviceTime -= n;
-		}
-		//如果不大于
-		else
-		{
-			//时间线增加剩余服务时间。服务时间置为0
-			process._LineTime += process._RemainSeviceTime;
-			process._RemainSeviceTime = 0;
-		}
-		//如果服务时间为0，则证明该进程已经执行完毕，此时时间线的时间为该进程结束时间
-		if (process._RemainSeviceTime == 0)
-			process._FinishTime = process._LineTime;
-		cout << process._name;
-	}
-
 }
 
 //时间片轮转
@@ -509,7 +464,8 @@ void RR(vector<Process> process)
 	while (Queue.size() != 0)
 	{
 		//将队头的进程执行一个时间片
-		ProcessOnceForRR(Queue.front(),q);
+		cout<<Queue.front()._name;
+		TmpOfPrccess(Queue.front(), q);
 		//查看进程信息中有哪些进程到达,如果到达则存入队中等待执行
 		if (process.size() != 0)
 		{
@@ -530,19 +486,18 @@ void RR(vector<Process> process)
 		//判断对头元素是否已经执行结束
 		Process tmp = Queue.front();
 		Queue.pop();  //出队
-		if (tmp._RemainSeviceTime == 0)
+
+		if (tmp._RemainSeviceTime != 0)
 		{
-			//等于0计算周转时间，带权周转时间
-			tmp._rTime = tmp._FinishTime - tmp._EnterTime;
-			tmp._PowerTime = tmp._rTime / tmp._ServiceTime;
-			Print.push_back(tmp);  //保存到信息表中
+			Queue.push(tmp);
 		}
-		else   // 不等于0
+		else
 		{
-			Queue.push(tmp);  //重新入队，等待下次分配时间片
+			Print.push_back(tmp);  //保存到信息表中
+
 		}
 		//当调度池中没有进程时，且时间线的时间不足以使下一个进程进入到调度池中，修改时间线
-		if (process.size() != 0 && Queue.size() != 0 && process[0]._LineTime < process[0]._EnterTime)
+		if (process.size() != 0 && Queue.size() == 0 && process[0]._LineTime <= process[0]._EnterTime)
 		{
 			process[0]._LineTime = process[0]._EnterTime;
 		}
@@ -553,7 +508,7 @@ void RR(vector<Process> process)
 
 void menu()
 {
-	vector<Process> process;
+	vector<Process> process;  //进程信息表
 	int input = 0;
 	do
 	{
