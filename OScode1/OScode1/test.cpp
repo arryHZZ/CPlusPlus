@@ -57,13 +57,6 @@ public:
 		*this = *this + n;
 		return *this;
 	}
-	////计算和值，返回分钟
-	//int operator+(const Time& time)
-	//{
-	//	int hour = this->_hour + time._hour;
-	//	int minute = this->_minute + time._minute;
-	//	return minute + 
-	//}
 
 	//赋值运算符重载
 	Time& operator=(Time& time)
@@ -175,7 +168,6 @@ public:
 		return *this;
 	}
 	static Time _LineTime;  //时间线
-	static size_t _TimePiece; //时间片
 	int _name; //进程编号
 	Time _EnterTime;  // 进入时间
 	size_t _ServiceTime; //服务时间
@@ -188,7 +180,6 @@ public:
 
 };
 
-size_t Process::_TimePiece = 0;
 Time Process::_LineTime;
 
 istream& operator>>(istream& _cin, Process& process)
@@ -267,44 +258,52 @@ void RunProcess(vector<Process>& process)
 		return;
 	for (int i = 0; i < process.size(); i++)
 	{
+		//如果进程进入时间小于等于时间线的时间
 		if (process[i]._LineTime <= process[i]._EnterTime)
 		{
+			//则该开始时间就应为该进程的进入时间
 			process[i]._BeginTime = process[i]._EnterTime;
-			process[i]._LineTime = process[i]._EnterTime;
-			process[i]._LineTime += process[i]._ServiceTime;
-			process[i]._FinishTime = process[i]._LineTime;
+			process[i]._LineTime = process[i]._EnterTime;  //将时间线的时间调整至进程进入时间
+			process[i]._LineTime += process[i]._ServiceTime;  //将时间线增加一个该进程的服务时间
+			process[i]._FinishTime = process[i]._LineTime;  //将进程结束时间修改为当前时间线时间
 		}
-		else
+		else  //进程进入时间大于时间线时间，则证明该进程一直在等待状态
 		{
-			process[i]._BeginTime = process[i]._LineTime;
-			process[i]._LineTime += process[i]._ServiceTime;
-			process[i]._FinishTime = process[i]._LineTime;
+			process[i]._BeginTime = process[i]._LineTime;  //将进程开始时间赋值为当前时间线时间
+			process[i]._LineTime += process[i]._ServiceTime;  //将时间线增加一个该进程时间
+			process[i]._FinishTime = process[i]._LineTime;  //将进程结束时间修改为当前时间线时间
 		}
-		process[i]._rTime = process[i]._FinishTime - process[i]._EnterTime;
-		process[i]._PowerTime = process[i]._rTime / process[i]._ServiceTime;
+		process[i]._rTime = process[i]._FinishTime - process[i]._EnterTime;   //计算该进程的周转时间
+		process[i]._PowerTime = process[i]._rTime / process[i]._ServiceTime;  //计算该进程的带权周转时间
 	}
 }
 
 //单步执行进程
 void TmpOfPrccess(Process& process, int n)
 {
+	//如果服务时间等于剩余服务时间，则证明该进程第一次被调度
 	if (process._ServiceTime == process._RemainSeviceTime)
 	{
+		//设定开始时间
 		process._BeginTime = process._LineTime;
 	}
+	//如果剩余服务时间大于等于一个时间片的时间
 	if (process._RemainSeviceTime >= n)
 	{
+		//剩余时间减少一个时间片的时间
 		process._RemainSeviceTime -= n;
+		//时间线向后移动一个时间片
 		process._LineTime += n;
 	}
-	else
+	else  //如果剩余时间小于一个时间时间片的时间
 	{
+		//时间线向后移动一个该进程的剩余时间
 		process._LineTime += process._RemainSeviceTime;
-		process._RemainSeviceTime = 0;
+		process._RemainSeviceTime = 0;  //将剩余时间置为0
 	}
-	if (process._RemainSeviceTime == 0)
+	if (process._RemainSeviceTime == 0)  //如果剩余时间为0，则证明该进程结束调度
 	{
-		process._FinishTime = process._LineTime;
+		process._FinishTime = process._LineTime;  // 设定结束时间，计算周转时间，带权周转时间
 		process._rTime = process._FinishTime - process._EnterTime;
 		process._PowerTime = (double)process._rTime / process._ServiceTime;
 	}
@@ -374,7 +373,6 @@ void SJF(vector<Process> process)
 	}
 	//打印结束表
 	OutPut(q);
-
 }
 
 //计算响应比
