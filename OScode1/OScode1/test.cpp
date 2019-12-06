@@ -165,6 +165,7 @@ public:
 		this->_rTime = a._rTime;
 		this->_ServiceTime = a._ServiceTime;
 		this->_RemainSeviceTime = a._RemainSeviceTime;
+		this->_First = a._First;
 		return *this;
 	}
 	static Time _LineTime;  // ±º‰œﬂ
