@@ -41,6 +41,7 @@ void MenuForInit()  //资源  进程
 //打印进程信息
 void OutPut(Process process)
 {
+	cout << "----------------------------------" << endl;
 	cout << "av矩形:";
 	for (int i = 0; i < process.av.size(); i++)
 	{
@@ -49,10 +50,10 @@ void OutPut(Process process)
 	}
 	cout << endl;
 	cout << "----------------------------------" << endl;
-	cout <<"进程编号|" <<" Max矩阵    |" << " need矩阵       |" << " allocation矩阵" << endl;
+	cout <<"进程编号 |" <<" Max矩阵    |" << " need矩阵   |" << " allocation矩阵" << endl;
 	for (int i = 0; i < process.max.size(); i++)
 	{
-		cout << "  " << i << "  |";
+		cout << "    " << i << "   |";
 		for (int j = 0; j < process.max[i].size(); j++)
 		{
 			cout << setiosflags(ios::right);
@@ -73,40 +74,10 @@ void OutPut(Process process)
 		}
 		cout << endl;
 	}
-	//cout << "----------------------------------" << endl;
-	//cout << "      need矩阵       " << endl;
-	//for (int i = 0; i < process.need.size(); i++)
-	//{
-	//	for (int j = 0; j < process.need[i].size(); j++)
-	//	{
-	//		cout << setiosflags(ios::right);
-	//		cout << " " << setw(2) << process.need[i][j] << " ";
-	//	}
-	//	cout << endl;
-	//}
-	//cout << "----------------------------------" << endl;
-	//cout << "    allocation矩阵" << endl;
-	//for (int i = 0; i < process.allocation.size(); i++)
-	//{
-	//	for (int j = 0; j < process.allocation[i].size(); j++)
-	//	{
-	//		cout << setiosflags(ios::right);
-	//		cout << " " << setw(2) << process.allocation[i][j] << " ";
-	//	}
-	//	cout << endl;
-	//}
-	//cout << "OutPut" << endl;
 	Sleep(1000);
 }
 
-void MenuForBankers()
-{
-	//system("CLS");
-	cout << "1. 资源请求分配" << endl;
-	cout << "2. 安全性检测" << endl;
-	cout << "3. 打印系统分配状态" << endl;
-	cout << "0. 退出" << endl;
-}
+
 
 //初始化资源信息
 void InitSource(Process& process)
@@ -179,50 +150,163 @@ void InitProcess(Process& process)
 	Sleep(1000);
 }
 
-//请求资源分配
-void ProcessAskSource(Process& process)
-{
-	cout << "ProcessAskSource()" << endl;
-	Sleep(1000);
-}
-
 //安全性检测
-void Testing(Process process)
+int Testing(Process process)
 {
-	vector<int> list;
-	int num;
+	vector<int> list;	
+
 	list.resize(process.max.size());
-	int cnt = 0;
-	int folg = 0;
-	while (cnt < process.max.size())
+	vector<int> tmp(process.av);
+	//循环整个进程表
+	int count = 0;
+	int num = 0;
+	while (count < process.max.size())
 	{
-		folg = 0;
+		//从表中选择符合条件的进程
 		for (int i = 0; i < process.max.size(); i++)
 		{
-			if (process.finish[i] != 1)
+			//进程未执行
+			if (process.finish[i] == 0)
 			{
-				for (num = 0; num < process.source.size(); num++)
+				int j = 0;
+				//判断进程的need矩阵是否能够满足
+				for (j = 0; j < process.source.size(); j++)
 				{
-					if (process.need[i][num] > process.av[i])
+					if (process.need[i][j] > tmp[j])
 						break;
 				}
-				if (num == process.source.size())
+				//满足分配条件，分配可用资源
+				if (j == process.source.size())
 				{
-					folg = 1;
-					list[cnt++] = i;
+					list[num++] = i;
 					process.finish[i] = 1;
-					for (num = 0; num < process.source.size(); num)
+					for (j = 0; j < process.source.size(); j++)
 					{
-						process.work[i][num] = process.av[num];
-						process.work[i][num] += process.need[i][num];
+						process.work[i][j] = tmp[j];
+						tmp[j] += process.allocation[i][j];
 					}
+					break;
 				}
 			}
 		}
+		if (num == count || num == 0)
+		{
+			cout << "*********************" << endl;
+			cout << "*****无安全序列******" << endl;
+			cout << "*********************" << endl;
+			return 1;
+		}
+		count++;
 	}
-	cout << "Testing()" << endl;
+	cout << "----------------------------------" << endl;
+	cout << "进程编号|" << " Max矩阵    |" << " need矩阵       |" << " allocation矩阵   |" << " work矩阵   " << endl;
+	for (int i = 0; i < list.size(); i++)
+	{
+
+		cout << "    " << list[i] << "   |";
+		for (int j = 0; j < process.max[i].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.max[list[i]][j] << " ";
+		}
+		cout << "|";
+
+		for (int j = 0; j < process.need[list[i]].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.need[list[i]][j] << " ";
+		}
+		cout << "|";
+		for (int j = 0; j < process.allocation[i].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.allocation[list[i]][j] << " ";
+		}
+		cout << "|";
+		for (int j = 0; j < process.work[i].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.work[list[i]][j] << " ";
+		}
+		cout << endl;
+	}
+	return 0;
+	//cout << "Testing()" << endl;
 	Sleep(1000);
 }
+
+
+//请求资源分配
+void ProcessAskSource(Process& process)
+{
+	//请求大于需求、请求大于可用。
+	vector<int> requet;
+	int num = 0;
+	requet.resize(process.source.size());
+	cout << "请输入需要请求资源的进程编号>>";
+	cin >> num;
+	if (num >= process.max.size() || num < 0)
+	{
+		cout << "********ERROR*********" << endl;
+		cout << "*****进程不存在******" << endl;
+		cout << "*********************" << endl;
+		return;
+	}
+	cout << "请输入request矩阵:";
+	for (auto& e : requet)
+	{
+		cin >> e;
+	}
+	//判断请求是否大于需求
+	for (int i = 0; i < process.source.size(); i++)
+	{
+		if (requet[i] > process.need[num][i])
+		{
+			cout << "********ERROR**********" << endl;
+			cout << "*****请求大于需求******" << endl;
+			cout << "**********************" << endl;
+			return;
+		}
+	}
+	//判断请求是否大于可用
+	for (int i = 0; i < process.source.size(); i++)
+	{
+		if (requet[i] > process.av[i])
+		{
+			cout << "********ERROR**********" << endl;
+			cout << "*****请求大于可用******" << endl;
+			cout << "**********************" << endl;
+			return;
+		}
+	}
+	//试分配
+	for (int i = 0; i < process.source.size(); i++)
+	{
+		process.av[i] -= requet[i];
+		process.allocation[num][i] += requet[i];
+		process.need[num][i] -= requet[i];
+	}
+	//分配成功
+	if (Testing(process) == 0)
+	{
+		cout << "**********************" << endl;
+		cout << "*****请求分配成功*****" << endl;
+		cout << "**********************" << endl;
+	}
+	else
+	{
+		//复原之前资源信息
+		for (int i = 0; i < process.source.size(); i++)
+		{
+			process.av[i] += requet[i];
+			process.allocation[num][i] -= requet[i];
+			process.need[num][i] += requet[i];
+		}
+		Sleep(1000);
+	}
+}
+
+
 
 void test()
 {
@@ -249,7 +333,6 @@ void test()
 						  system("CLS");
 						  break;
 					  case 2:InitProcess(process);
-						  system("CLS");
 						  break;
 					  case 3:OutPut(process);
 						  break;
@@ -261,33 +344,10 @@ void test()
 		}
 			break;
 		case 2:{
-				   system("CLS");
-				   int input3 = 0;
-				   do
-				   {
-					   
-					   MenuForBankers();
-					   cout << "请输入你的选择>> ";
-					   cin >> input3;
-					   switch (input3)
-					   {
-					   case 1:ProcessAskSource(process);		
-						      system("CLS");
-						   break;
-					   case 2:Testing(process);		
-						      system("CLS");
-						   break;
-					   case 3:OutPut(process);
-						   break;
-					   default:
-						   break;
-					   }
-				   } while (input3);
-				   system("CLS");
+				   ProcessAskSource(process);
 		}
 			break;
 		case 3:Testing(process);
-			   system("CLS");
 			break;
 		case 4: OutPut(process);
 			break;
