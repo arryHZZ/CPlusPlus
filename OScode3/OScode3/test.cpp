@@ -50,7 +50,11 @@ void OutPut(Process process)
 	}
 	cout << endl;
 	cout << "----------------------------------" << endl;
+<<<<<<< HEAD
 	cout <<"进程编号|" <<" Max矩阵    |" << " need矩阵   |" << " allocation矩阵" << endl;
+=======
+	cout <<"进程编号 |" <<" Max矩阵    |" << " need矩阵   |" << " allocation矩阵" << endl;
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 	for (int i = 0; i < process.max.size(); i++)
 	{
 		cout << "    " << i << "   |";
@@ -191,6 +195,7 @@ int Testing(Process process)
 		}
 		if (num == count || num == 0)
 		{
+<<<<<<< HEAD
 			cout << "***********************" << endl;
 			cout << "***** 无安全序列 ******" << endl;
 			cout << "***********************" << endl;
@@ -232,6 +237,47 @@ int Testing(Process process)
 		}
 		cout << endl;
 	}
+=======
+			cout << "*********************" << endl;
+			cout << "*****无安全序列******" << endl;
+			cout << "*********************" << endl;
+			return 1;
+		}
+		count++;
+	}
+	cout << "----------------------------------" << endl;
+	cout << "进程编号|" << " Max矩阵    |" << " need矩阵       |" << " allocation矩阵   |" << " work矩阵   " << endl;
+	for (int i = 0; i < list.size(); i++)
+	{
+
+		cout << "    " << list[i] << "   |";
+		for (int j = 0; j < process.max[i].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.max[list[i]][j] << " ";
+		}
+		cout << "|";
+
+		for (int j = 0; j < process.need[list[i]].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.need[list[i]][j] << " ";
+		}
+		cout << "|";
+		for (int j = 0; j < process.allocation[i].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.allocation[list[i]][j] << " ";
+		}
+		cout << "|";
+		for (int j = 0; j < process.work[i].size(); j++)
+		{
+			cout << setiosflags(ios::right);
+			cout << " " << setw(2) << process.work[list[i]][j] << " ";
+		}
+		cout << endl;
+	}
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 	return 0;
 	//cout << "Testing()" << endl;
 	Sleep(1000);
@@ -250,8 +296,13 @@ void ProcessAskSource(Process& process)
 	if (num >= process.max.size() || num < 0)
 	{
 		cout << "********ERROR*********" << endl;
+<<<<<<< HEAD
 		cout << "*****进程不存在*******" << endl;
 		cout << "**********************" << endl;
+=======
+		cout << "*****进程不存在******" << endl;
+		cout << "*********************" << endl;
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 		return;
 	}
 	cout << "请输入request矩阵:";
@@ -266,7 +317,11 @@ void ProcessAskSource(Process& process)
 		{
 			cout << "********ERROR**********" << endl;
 			cout << "*****请求大于需求******" << endl;
+<<<<<<< HEAD
 			cout << "***********************" << endl;
+=======
+			cout << "**********************" << endl;
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 			return;
 		}
 	}
@@ -277,17 +332,25 @@ void ProcessAskSource(Process& process)
 		{
 			cout << "********ERROR**********" << endl;
 			cout << "*****请求大于可用******" << endl;
+<<<<<<< HEAD
 			cout << "***********************" << endl;
+=======
+			cout << "**********************" << endl;
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 			return;
 		}
 	}
 	//试分配
+<<<<<<< HEAD
 	int FinalNeed = 0;
+=======
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 	for (int i = 0; i < process.source.size(); i++)
 	{
 		process.av[i] -= requet[i];
 		process.allocation[num][i] += requet[i];
 		process.need[num][i] -= requet[i];
+<<<<<<< HEAD
 		FinalNeed += process.need[num][i];
 	}
 	if (FinalNeed == 0)
@@ -297,6 +360,8 @@ void ProcessAskSource(Process& process)
 			process.av[i] += process.allocation[num][i];
 			process.allocation[num][i] = 0;
 		}
+=======
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 	}
 	//分配成功
 	if (Testing(process) == 0)
@@ -307,6 +372,7 @@ void ProcessAskSource(Process& process)
 	}
 	else
 	{
+<<<<<<< HEAD
 		cout << "***********************" << endl;
 		cout << "*****  分配失败  ******" << endl;
 		cout << "***********************" << endl;
@@ -331,6 +397,15 @@ void ProcessAskSource(Process& process)
 			}
 		}
 
+=======
+		//复原之前资源信息
+		for (int i = 0; i < process.source.size(); i++)
+		{
+			process.av[i] += requet[i];
+			process.allocation[num][i] -= requet[i];
+			process.need[num][i] += requet[i];
+		}
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 		Sleep(1000);
 	}
 }

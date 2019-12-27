@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿生成启动时间为 2019/12/25 14:14:39。
+=======
+﻿生成启动时间为 2019/12/24 16:08:25。
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
      1>项目“F:\程序\OScode3\OScode3\OScode3.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          E:\vss\vis\VC\bin\CL.exe /c /I"E:\vss\内存泄漏检查工具\新建文件夹\Visual Leak Detector\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt test.cpp
@@ -15,6 +19,7 @@
      1>f:\程序\oscode3\oscode3\test.cpp(166): warning C4018: “<”: 有符号/无符号不匹配
      1>f:\程序\oscode3\oscode3\test.cpp(173): warning C4018: “<”: 有符号/无符号不匹配
      1>f:\程序\oscode3\oscode3\test.cpp(183): warning C4018: “<”: 有符号/无符号不匹配
+<<<<<<< HEAD
      1>f:\程序\oscode3\oscode3\test.cpp(205): warning C4018: “<”: 有符号/无符号不匹配
      1>f:\程序\oscode3\oscode3\test.cpp(209): warning C4018: “<”: 有符号/无符号不匹配
      1>f:\程序\oscode3\oscode3\test.cpp(216): warning C4018: “<”: 有符号/无符号不匹配
@@ -27,6 +32,18 @@
      1>f:\程序\oscode3\oscode3\test.cpp(295): warning C4018: “<”: 有符号/无符号不匹配
      1>f:\程序\oscode3\oscode3\test.cpp(316): warning C4018: “<”: 有符号/无符号不匹配
      1>f:\程序\oscode3\oscode3\test.cpp(326): warning C4018: “<”: 有符号/无符号不匹配
+=======
+     1>f:\程序\oscode3\oscode3\test.cpp(203): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(207): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(214): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(220): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(226): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(248): warning C4018: “>=”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(261): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(272): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(283): warning C4018: “<”: 有符号/无符号不匹配
+     1>f:\程序\oscode3\oscode3\test.cpp(299): warning C4018: “<”: 有符号/无符号不匹配
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
        Link:
          E:\vss\vis\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\程序\OScode3\Debug\OScode3.exe" /INCREMENTAL /NOLOGO /LIBPATH:"E:\vss\内存泄漏检查工具\新建文件夹\Visual Leak Detector\lib\Win32" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\程序\OScode3\Debug\OScode3.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\程序\OScode3\Debug\OScode3.lib" /MACHINE:X86 Debug\test.obj
          OScode3.vcxproj -> F:\程序\OScode3\Debug\OScode3.exe
@@ -34,4 +51,8 @@
 
 生成成功。
 
+<<<<<<< HEAD
 已用时间 00:00:02.24
+=======
+已用时间 00:00:02.17
+>>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
