@@ -18,9 +18,24 @@
     <ClInclude Include="md5.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="fileutil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="fileManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="md5.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="fileManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="fileutil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

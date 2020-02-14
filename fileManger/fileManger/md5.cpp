@@ -1,7 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
+#pragma once
 #include "md5.h"
 #include <math.h>
-#include<iostream>
+#include <iostream>
+#include <fstream>
 
 int MD5::_leftShift[64] = { 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7,
 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
@@ -80,13 +82,17 @@ void MD5:: calMD5(uint32* chunk)
 		d = c;
 		c = b;
 		b = b + leftShift(a + f + chunk[g] + _k[i], _leftShift[i]);
-		a = d;
+		a = tmp;
 	}
 	//更新a b c d
+	_a += a;
+	_b += b;
+	_c += c;
+	_d += d;
 }
 
 //计算最后一块数据块的MD5值，先填充，后计算
-void MD5::calFinalMD5(uint32* chunk)
+void MD5::calFinalMD5()
 {
 	//填充冗余信息，至少填充一个字节冗余信息
 	//第一位补1，其余补0；
@@ -114,14 +120,15 @@ void MD5::calFinalMD5(uint32* chunk)
 	}
 	//给数据块最后64位填充文件原始长度信息
 	unsigned long long totaBits = _totalByte;
+	totaBits *= 8;
 	((unsigned long long*)_chunk)[7] = totaBits;
 	calMD5((uint32*)_chunk);
 }
 
 //将整数转化成对应的16进制字符串
-std::string changeHex(uint32 n)
+std::string MD5::changeHex(uint32 n)
 {
-	std::string num = "0123456789abcde";
+	std::string num = "0123456789abcdef";
 	std::string strNum;
 	std::string tmp = "00";
 	//每次获取4个比特位的数字信息，因为没4位的和正好表示一位16进制的数字，
@@ -138,5 +145,59 @@ std::string changeHex(uint32 n)
 	return strNum;
 }
 
-std::string getStringMD5(const std::string& str);
-std::string getFileMD5(const char* filePath);
+std::string MD5::getStringMD5(const std::string& str)
+{
+	if (str.empty())
+	{
+		return changeHex(_a).append(changeHex(_b)).append(changeHex(_c)).append(changeHex(_d));
+	}
+	_totalByte = str.size();
+	uint32 chunkNum = _totalByte / CHUNK_BYTE;
+	const char* strPtr = str.c_str();
+	//计算整块数据的MD5
+	for (int i = 0; i < chunkNum; i++)
+	{
+		memcpy(_chunk, strPtr + i * CHUNK_BYTE, CHUNK_BYTE);
+		calMD5((uint32*)_chunk);
+	}
+	//计算最后一块数据MD5
+	_lastByte = _totalByte % CHUNK_BYTE;
+	memcpy(_chunk, strPtr + chunkNum *  CHUNK_BYTE, _lastByte);
+	calFinalMD5();
+	return changeHex(_a).append(changeHex(_b)).append(changeHex(_c)).append(changeHex(_d));
+}
+
+std::string MD5::getFileMD5(const char* filePath)
+{
+	std::ifstream fin(filePath,std::ifstream::binary);
+	if (fin.is_open())
+	{
+		std::cout << filePath;
+		perror("file open failed!");
+	}
+	while (!fin.eof())
+	{
+		//获取文件大小
+		/*
+		fin.seekg(0, fin.end);
+		uint32 length = fin.tellg();
+		fin.seekg(0, fin.beg);
+		char* totalDate = new char[length];
+		fin.read(totalDate, length);
+		*/
+		//每次获取一个数据块的数据
+		fin.read(_chunk, CHUNK_BYTE);
+		//是否读取了64个字节
+		if (fin.gcount() != CHUNK_BYTE)
+		{
+			//不足则为最后一块数据
+			break;
+		}
+		_totalByte += CHUNK_BYTE;
+		calMD5((uint32*)_chunk);
+	}
+	_lastByte = fin.gcount();
+	_totalByte += _lastByte;
+	calFinalMD5();
+	return changeHex(_a).append(changeHex(_b)).append(changeHex(_c)).append(changeHex(_d));
+}

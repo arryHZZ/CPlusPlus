@@ -6,7 +6,6 @@ class MD5
 {
 public:
 	MD5();
-
 	//运算函数
 	uint32 F(uint32 b, uint32 c, uint32 d)
 	{
@@ -39,7 +38,7 @@ public:
 	void calMD5(uint32* chunk);
 
 	//计算最后一块数据块的MD5值，先填充，后计算
-	void calFinalMD5(uint32* chunk);
+	void calFinalMD5();
 
 	//将整数转化成对应的16进制字符串
 	std::string changeHex(uint32 n);
