@@ -65,11 +65,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="fileManager.h" />
+    <ClInclude Include="fileMangerTool.h" />
     <ClInclude Include="fileutil.h" />
     <ClInclude Include="md5.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fileManager.cpp" />
+    <ClCompile Include="fileManagerTool.cpp" />
     <ClCompile Include="fileutil.cpp" />
     <ClCompile Include="md5.cpp" />
     <ClCompile Include="test.cpp" />

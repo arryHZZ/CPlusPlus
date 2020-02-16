@@ -9,14 +9,14 @@ void FileManger::scannereDir(const std::string& path)
 	//清理容器
 	_files.clear();
 	searchDir(path, _files);
-	std::cout << "all list" << std::endl;
-	showAllFile();
+	//std::cout << "all list" << std::endl;
+	//std::unordered_set<std::string> filesSub;
+	//searchDir(path, _files);
+	//showAllFile();
 	getMd5toFiles();
-	showCopyList();
 	getCopList();
-	std::cout << "copy list" << std::endl;
-	showCopyList();
-	showAllFile();
+	//std::cout << "copy list" << std::endl;
+	//showCopyList();
 
 }
 
@@ -55,8 +55,9 @@ void FileManger::getCopList()
 		}
 		else
 		{
-			it = _md5toFiles.erase(it);
 			_files.erase(it->second);
+			it = _md5toFiles.erase(it);
+
 		}
 	}
 }
@@ -64,23 +65,114 @@ void FileManger::getCopList()
 //删除重复的文件，相同内容的文件只保留一份
 void FileManger::deleteByName(const std::string& name)
 {
-
+	if (_filestoMD5.count(name) == 0)
+	{
+		std::cout << name << "not exist !" << std::endl;
+		return;
+	}
+	std::string curMD5 = _filestoMD5[name];
+	std::cout << name << "---->" << _md5toFiles.count(curMD5) << std::endl;
+	auto pairIt = _md5toFiles.equal_range(curMD5);
+	auto curIt = pairIt.first;
+	int count = 0;
+	while (curIt != pairIt.second)
+	{
+		if (curIt->second != name)
+		{
+			_files.erase(curIt->second);
+			_filestoMD5.erase(curIt->second);
+			deleteFile(curIt->second.c_str());
+			++count;
+		}
+		++curIt;
+	}
+	curIt = pairIt.first;
+	while (curIt != pairIt.second)
+	{
+		if (curIt->second != name)
+		{
+			_md5toFiles.erase(curIt);
+			pairIt = _md5toFiles.equal_range(curMD5);
+			curIt = pairIt.first;
+		}
+		++curIt;
+	}
+	std::cout << "delete files number: " << count << std::endl;
 }
 
 void FileManger::deleteByMD5(const std::string& md5)
 {
-
+	if (_md5toFiles.count(md5) == 0)
+	{
+		std::cout << md5 << "not exist !" << std::endl;
+		return;
+	}
+	auto it = _md5toFiles.find(md5);
+	deleteByName(it->second);
 }
 
+//void FileManger::deleteByMD5(const std::string& md5)
+//{
+//	//通过MD5寻找文件
+//	//MD5对应的文件必须存在
+//	if (_md5toFiles.count(md5))
+//	{
+//		std::cout << md5 << "not exist !" << std::endl;
+//		return;
+//	}
+//	auto pairIt = _md5toFiles.equal_range(md5);
+//	std::cout << md5 << "----->" << _md5toFiles.count(md5) << std::endl;
+//	auto curIt = pairIt.first;
+//	++curIt;
+//	int count = 0;
+//	while (curIt != pairIt.second)
+//	{
+//		_files.erase(curIt->second);
+//		_filestoMD5.erase(curIt->second);
+//		//删除文件
+//		deleteFile(curIt->second.c_str());
+//		++count;
+//		curIt++;
+//	}
+//	//更新MD5到文件的映射
+//	curIt = pairIt.first;
+//	++curIt;
+//	_md5toFiles.erase(curIt, pairIt.second);
+//	std::cout << "delete files number : " << count << std::endl;
+//}
+
+//重复的文件只保留一份
 void FileManger::deleteAllCopy()
 {
-
+	std::unordered_set<std::string> md5set;
+	//找出所有的MD5值
+	for (const auto& p : _md5toFiles)
+	{
+		md5set.insert(p.first);
+	}
+	for (const auto& md5 : md5set)
+	{
+		deleteByMD5(md5);
+	}
 }
 
 //模糊删除，删除包含输入字符的文件中重复的文件
 void FileManger::deleteByMatchName(const std::string& MatchName)
 {
-
+	std::unordered_set<std::string> allFiles;
+	//遍历所有的文件
+	for (const auto& f : _files)
+	{
+		if (f.find(MatchName) != std::string::npos)
+			allFiles.insert(f);
+	}
+	for (const auto& f : allFiles)
+	{
+		if (_filestoMD5.count(f) != 0)
+		{
+			deleteByName(f);
+		}
+	}
 }
 
 void FileManger::showCopyList()
@@ -93,12 +185,14 @@ void FileManger::showCopyList()
 		int idx = 1;
 		auto pairIt = _md5toFiles.equal_range(it->first);
 		auto curIt = pairIt.first;
-		std::cout << "cur MD5" << it->first << std::endl;
+		std::cout << "cur MD5:" << it->first << std::endl;
 		while (curIt != pairIt.second)
 		{
 			std::cout << "\t第" << idx << "个文件" << std::endl;
 			std::cout << curIt->second << std::endl;
 			count++;
+			idx++;
+			curIt++;
 		}
 		it = pairIt.second;
 	}
