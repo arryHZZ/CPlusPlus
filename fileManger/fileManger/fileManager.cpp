@@ -111,35 +111,6 @@ void FileManger::deleteByMD5(const std::string& md5)
 	deleteByName(it->second);
 }
 
-//void FileManger::deleteByMD5(const std::string& md5)
-//{
-//	//通过MD5寻找文件
-//	//MD5对应的文件必须存在
-//	if (_md5toFiles.count(md5))
-//	{
-//		std::cout << md5 << "not exist !" << std::endl;
-//		return;
-//	}
-//	auto pairIt = _md5toFiles.equal_range(md5);
-//	std::cout << md5 << "----->" << _md5toFiles.count(md5) << std::endl;
-//	auto curIt = pairIt.first;
-//	++curIt;
-//	int count = 0;
-//	while (curIt != pairIt.second)
-//	{
-//		_files.erase(curIt->second);
-//		_filestoMD5.erase(curIt->second);
-//		//删除文件
-//		deleteFile(curIt->second.c_str());
-//		++count;
-//		curIt++;
-//	}
-//	//更新MD5到文件的映射
-//	curIt = pairIt.first;
-//	++curIt;
-//	_md5toFiles.erase(curIt, pairIt.second);
-//	std::cout << "delete files number : " << count << std::endl;
-//}
 
 //重复的文件只保留一份
 void FileManger::deleteAllCopy()
@@ -206,4 +177,3 @@ void FileManger::showAllFile()
 	}
 	std::cout << "file count: " << _files.size() << std::endl;
 }
-//void FileManger::showMD5Map();

@@ -169,7 +169,7 @@ std::string MD5::getStringMD5(const std::string& str)
 
 std::string MD5::getFileMD5(const char* filePath)
 {
-	std::ifstream fin(filePath,std::ifstream::binary);
+	std::ifstream fin(filePath, std::ifstream::binary);
 	if (fin.is_open())
 	{
 		std::cout << filePath;
@@ -177,15 +177,6 @@ std::string MD5::getFileMD5(const char* filePath)
 	}
 	while (!fin.eof())
 	{
-		//获取文件大小
-		/*
-		fin.seekg(0, fin.end);
-		uint32 length = fin.tellg();
-		fin.seekg(0, fin.beg);
-		char* totalDate = new char[length];
-		fin.read(totalDate, length);
-		*/
-		//每次获取一个数据块的数据
 		fin.read(_chunk, CHUNK_BYTE);
 		//是否读取了64个字节
 		if (fin.gcount() != CHUNK_BYTE)
