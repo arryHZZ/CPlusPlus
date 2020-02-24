@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 1
 #pragma once
 #include "fileManager.h"
 #include"fileutil.h"
@@ -9,15 +9,8 @@ void FileManger::scannereDir(const std::string& path)
 	//«Â¿Ì»›∆˜
 	_files.clear();
 	searchDir(path, _files);
-	//std::cout << "all list" << std::endl;
-	//std::unordered_set<std::string> filesSub;
-	//searchDir(path, _files);
-	//showAllFile();
 	getMd5toFiles();
 	getCopList();
-	//std::cout << "copy list" << std::endl;
-	//showCopyList();
-
 }
 
 void FileManger::getMd5toFiles()
