@@ -1,8 +1,10 @@
 #include<iostream>
 using namespace std;
+
 class Date
 {
 public:
+	//输入输出重载
 	friend ostream& operator<<(ostream& _cout, const Date& d)
 	{
 		_cout << d._year << "-" << d._month << "-" << d._day;
@@ -10,7 +12,7 @@ public:
 	}
 
 	friend ostream& operator>>(ostream& _cin, const Date& d);
-
+	//构造
 	Date(int year = 1900, int month = 1, int day = 1)
 	{
 		if (year <= 0 || month <= 0 || month > 12 || day <= 0 || day > GetMounthDay(year, month))
