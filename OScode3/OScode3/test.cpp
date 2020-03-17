@@ -31,7 +31,6 @@ void menu()
 
 void MenuForInit()  //资源  进程
 {
-	//system("CLS");
 	cout << "1. 设定资源总量" << endl;
 	cout << "2. 进程信息初识化" << endl;
 	cout << "3. 打印系统分配状态" << endl;
@@ -50,11 +49,8 @@ void OutPut(Process process)
 	}
 	cout << endl;
 	cout << "----------------------------------" << endl;
-<<<<<<< HEAD
 	cout <<"进程编号|" <<" Max矩阵    |" << " need矩阵   |" << " allocation矩阵" << endl;
-=======
 	cout <<"进程编号 |" <<" Max矩阵    |" << " need矩阵   |" << " allocation矩阵" << endl;
->>>>>>> 72c01a1ad127af80d99315058c96641daae5c1f7
 	for (int i = 0; i < process.max.size(); i++)
 	{
 		cout << "    " << i << "   |";
