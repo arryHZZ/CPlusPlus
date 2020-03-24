@@ -64,14 +64,3 @@ vector<int> sortedSquares(vector<int>& A) {
 	return A;
 }
 
-int main()
-{
-	vector<int> A;
-	A.resize(5);
-	for (auto &e : A)
-	{
-		cin >> e;
-	}
-	sortedSquares(A);
-	return 0;
-}
