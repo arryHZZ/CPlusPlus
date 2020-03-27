@@ -56,15 +56,4 @@ void StuInfo::printInfo()
 }
 
 
-int main()
-{
-	StuInfo* stu = new StuInfo();
-	const char* schname = "bite";
-	char* clasname = (char*)"60";
-	char stuname[13] = "nigulasikasi";
-	string sex = "male";
-	stu->OnInit(schname, clasname, stuname, sex);
-	stu->printInfo();
 
-	return 0;
-}
