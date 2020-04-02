@@ -1,0 +1,19 @@
+﻿生成启动时间为 2020/4/2 20:34:57。
+     1>项目“F:\程序\test_4.2\test_4.2\test_4.2.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         E:\vss\vis\VC\bin\CL.exe /c /I"E:\vss\内存泄漏检查工具\新建文件夹\Visual Leak Detector\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt "源.cpp" "源.hpp"
+         源.hpp
+     1>f:\程序\test_4.2\test_4.2\源.hpp(10): error C2433: “Z”: 不允许在数据声明中使用“friend”
+     1>f:\程序\test_4.2\test_4.2\源.hpp(10): error C4430: 缺少类型说明符 - 假定为 int。注意:  C++ 不支持默认 int
+     1>f:\程序\test_4.2\test_4.2\源.hpp(12): error C2653: “Y”: 不是类或命名空间名称
+     1>f:\程序\test_4.2\test_4.2\源.hpp(32): fatal error C1903: 无法从以前的错误中恢复；正在停止编译
+         源.cpp
+     1>f:\程序\test_4.2\test_4.2\源.cpp(17): error C2248: “Y::g”: 无法访问 private 成员(在“Y”类中声明)
+                 f:\程序\test_4.2\test_4.2\源.cpp(8) : 参见“Y::g”的声明
+                 f:\程序\test_4.2\test_4.2\源.cpp(7) : 参见“Y”的声明
+         正在生成代码...
+     1>已完成生成项目“F:\程序\test_4.2\test_4.2\test_4.2.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:00.88

@@ -1,0 +1,32 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+
+
+
+class X;
+class Y {
+	void g(X*);
+};
+class X
+{
+private:
+	int i;
+public:
+	X(){ i = 0; }
+	friend void h(X*);
+	friend void Y::g(X*);
+	friend class Z;
+};
+void h(X* x) { x->i = +10; }
+void Y::g(X* x) { x->i++; }
+class Z {
+public:
+	void f(X* x) { x->i += 5; }
+};
+
+void main()
+{
+	X x;
+	Z z;
+	z.f(&x);
+}
